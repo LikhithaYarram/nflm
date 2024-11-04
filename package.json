@@ -1,6 +1,6 @@
 {
-  "homepage":"https://likhithayarram.github.io/nf-label-maker",
-  "name": "nf-label-maker",
+  "homepage":"https://likhithayarram.github.io/nflm",
+  "name": "nflm",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
