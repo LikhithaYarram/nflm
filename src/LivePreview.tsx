@@ -95,9 +95,9 @@ const LivePreview: React.FC<LivePreviewProps> = ({
   const getIngredientValues = (name: string) => {
     const ingredient = mandatoryIngredients.find(ing => ing.name === name);
     return {
-      mainValue: ingredient && ingredient.amount > 0 ? 
+      mainValue: ingredient && ingredient.amount !== undefined ? 
         `${ingredient.amount}${ingredient.unit}` : '--',
-      dailyValue: ingredient && ingredient.dailyValue > 0 ? 
+      dailyValue: ingredient && ingredient.dailyValue !== undefined ? 
         `${ingredient.dailyValue}%` : '--'
     };
   };
@@ -115,7 +115,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           variant="contained"
           startIcon={<PictureAsPdfIcon />}
           onClick={generatePDF}
-          sx={{ bgcolor: '#FFB74D', color: '#000', '&:hover': { bgcolor: '#FFA726' } }}
+          sx={{ bgcolor: '#ADD8E6', color: '#000', '&:hover': { bgcolor: '#B0DAE9' } }}
         >
           Export PDF
         </Button>
@@ -123,61 +123,66 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           variant="contained"
           startIcon={<ImageIcon />}
           onClick={generateJPEG}
-          sx={{ bgcolor: '#FFB74D', color: '#000', '&:hover': { bgcolor: '#FFA726' } }}
+          sx={{ bgcolor: '#ADD8E6', color: '#000', '&:hover': { bgcolor: '#B0DAE9' } }}
         >
           Export JPEG
         </Button>
       </Stack>
 
       {/* Existing preview content - add ref to the Paper component */}
-      <Box sx={{ width: '100%', maxWidth: 400, margin: '0 auto' }}>
+      <Box sx={{ width: '100%', maxWidth: 300, margin: '0 auto' }}>
         <Paper ref={previewRef} elevation={0} sx={{ 
-          p: 2, 
-          border: '1px solid #ccc',
-          backgroundColor: '#fff' 
+          p: '5px',
+          border: '3px solid black',
+          borderRadius: 0,
+          backgroundColor: '#fff',
+          fontFamily: 'Helvetica, Arial, sans-serif'
         }}>
           {/* Header */}
-          <Typography variant="h6" gutterBottom align="center" sx={{ 
-            fontWeight: 'bold',
-            borderBottom: '1px solid #000',  // Changed from 8px to 1px
-            pb: 1,
+          <Typography variant="h6" sx={{ 
+            fontWeight: 1000,
+            borderBottom: '1px solid #CCCCCC',
+            pb: '-15px',
+            mt: '-15px',
+            mb:'0px',
+            // my: '-2px',
             fontSize: '2rem',
-            letterSpacing: 1
+            letterSpacing: 0,
+            textAlign: 'center'
           }}>
             Nutrition Facts
           </Typography>
           
           {/* Serving Information */}
           <Box sx={{ 
-            borderBottom: '10px solid #000',  // Changed to thick solid border
-            mb: 1 
+            borderBottom: '10px solid #000',  // Changed from 8px to 10px to make it even bolder
+            mb: 0.5 
           }}>
-            <Typography variant="body1" sx={{ 
-              fontWeight: 'bold',
-              fontSize: '1.1rem',
-              mb: 1
+            <Typography sx={{ 
+              fontSize: '1rem',
+              fontWeight: 400
             }}>
               {servingsPerContainer ? `${servingsPerContainer} servings per container` : 'X servings per container'}
             </Typography>
             
-            <Typography variant="body1" sx={{ 
-              fontWeight: 'bold',
-              fontSize: '1.1rem',
+            <Typography sx={{ 
+              fontSize: '1rem',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'baseline',
-              mb: 1
+              mb: 0.5,
+              fontWeight: 900  // Changed from 400 to 900 to make it bold
             }}>
               <span>Serving size</span>
               <span>{servingSize || '--'}</span>
             </Typography>
           </Box>
 
-          {/* Amount per serving text */}
-          <Typography variant="body1" sx={{ 
-            fontWeight: 'bold',
-            fontSize: '1.1rem',
-            mb: 1
+          {/* Amount per serving */}
+          <Typography sx={{ 
+            fontSize: '0.85rem',
+            fontWeight: 900,
+            mb: 0
           }}>
             Amount per serving
           </Typography>
@@ -185,21 +190,23 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           {/* Calories */}
           <Box sx={{ 
             borderBottom: '6px solid #000',
-            mb: 1,
-            pb: 1,
+            mt:'-25px',
+            mb: 0.5,
+            pt: 0,
+            pb: 0.5,
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'baseline'
           }}>
             <Typography sx={{ 
-              fontSize: '2rem',
-              fontWeight: 'bold'
+              fontSize: '1.8rem',
+              fontWeight: 900  // Bolder weight
             }}>
               Calories
             </Typography>
             <Typography sx={{ 
               fontSize: '2.5rem',
-              fontWeight: 'bold'
+              fontWeight: 900
             }}>
               {calories || '0'}
             </Typography>
@@ -209,53 +216,62 @@ const LivePreview: React.FC<LivePreviewProps> = ({
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'flex-end',
-            mb: 1
+            mb: 0.5,
+            borderBottom: '1px solid #000'
           }}>
-            <Typography variant="body2" sx={{ 
-              fontWeight: 'bold'
+            <Typography sx={{ 
+              fontSize: '0.85rem',
+              fontWeight: 900  // Changed to bold
             }}>
               % Daily Value*
             </Typography>
           </Box>
 
-          {/* All Ingredients */}
-          <Box sx={{ mb: 2 }}>
-            {/* Mandatory Ingredients */}
+          {/* Ingredients sections */}
+          <Box sx={{ mb: 1 }}>
             {mandatoryIngredientLabels.map((label, index) => {
               const values = getIngredientValues(label);
+              const isLastMandatory = index === mandatoryIngredientLabels.length - 1 && additionalIngredients.length === 0;
               return (
                 <Box key={`mandatory-${index}`} sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between',
-                  py: 0.5,
-                  borderBottom: isProtein(label) ? 
+                  py: 0.25,
+                  borderBottom: isLastMandatory ? 'none' : isProtein(label) ? 
                     '10px solid #000' : 
-                    (index === mandatoryIngredientLabels.length - 1 && 
-                     additionalIngredients.length === 0 ? 
-                      'none' : '1px solid #ccc')
+                    ['Total Fat', 'Trans Fat', 'Total Carbohydrate', 'Total Sugars'].includes(label) ?
+                    '2px solid #CCCCCC' :  // Changed to 2px for specified labels
+                    '1px solid #000'
                 }}>
                   <Box sx={{ 
                     display: 'flex',
-                    gap: 1,
+                    gap: 0.5,
                     flex: 1
                   }}>
-                    <Typography variant="body2" sx={{ 
+                    <Typography sx={{ 
+                      fontSize: '0.85rem',
                       fontWeight: label === 'Total Fat' || 
                                  label === 'Total Carbohydrate' || 
-                                 label === 'Protein' ||
-                                 label === 'Total Sugars' ? 'bold' : 'normal',
-                      pl: !isVitaminOrMineral(label) && 
-                          !label.includes('Total') && 
-                          !label.includes('Protein') ? 2 : 0
-                      // Remove indentation for vitamins and minerals
+                                 label === 'Cholesterol' || 
+                                 label === 'Protein' || 
+                                 label === 'Sodium' ? 900 : 400,
+                      pl: label === 'Added Sugars' ? 4 : 
+                          ['Saturated Fat', 'Trans Fat', 'Dietary Fiber', 'Total Sugars'].includes(label) ? 2 : 0
                     }}>
-                      {`${label} ${values.mainValue}`}
+                      {label === 'Added Sugars' ? `Includes ${label}` : label}
+                    </Typography>
+                    <Typography sx={{ 
+                      fontSize: '0.85rem',
+                      fontWeight: 400  // Ensure quantity and unit are not bold
+                    }}>
+                      {values.mainValue}
                     </Typography>
                   </Box>
-                  <Typography variant="body2" sx={{ 
+                  <Typography sx={{ 
+                    fontSize: '0.85rem',
                     minWidth: '45px',
                     textAlign: 'right',
-                    fontWeight: 'bold'
+                    fontWeight: 900  // Changed to bold for percentage values
                   }}>
                     {values.dailyValue}
                   </Typography>
@@ -263,57 +279,63 @@ const LivePreview: React.FC<LivePreviewProps> = ({
               );
             })}
 
-            {/* Additional Ingredients */}
-            {additionalIngredients.map((ingredient, index) => (
-              <Box key={`additional-${index}`} sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                py: 0.5,
-                borderBottom: index === additionalIngredients.length - 1 ? 
-                             'none' : '1px solid #ccc'
-              }}>
-                <Typography variant="body2">
-                  {`${ingredient.name} ${ingredient.dosage}${ingredient.unit}`}
-                </Typography>
-                <Typography variant="body2" sx={{ 
-                  minWidth: '45px',
-                  textAlign: 'right',
-                  fontWeight: 'bold'
-                }}>
-                  {ingredient.dailyValue ? `${ingredient.dailyValue}%` : '--'}
-                </Typography>
+            {/* Additional Ingredients Section */}
+            {additionalIngredients.length > 0 && (
+              <Box>
+                {additionalIngredients.map((ingredient, index) => {
+                  const isLastAdditional = index === additionalIngredients.length - 1;
+                  return (
+                    <Box key={`additional-${index}`} sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      py: 0.25,
+                      borderBottom: isLastAdditional ? 'none' : '1px solid #000'
+                    }}>
+                      <Box sx={{ 
+                        display: 'flex',
+                        gap: 0.5,
+                        flex: 1
+                      }}>
+                        <Typography sx={{ 
+                          fontSize: '0.85rem',
+                          fontWeight: 400  // Match the weight used for non-bold mandatory ingredients
+                        }}>
+                          {ingredient.name}
+                        </Typography>
+                        <Typography sx={{ 
+                          fontSize: '0.85rem',
+                          fontWeight: 400  // Match the weight used for non-bold mandatory ingredients
+                        }}>
+                          {`${ingredient.dosage}${ingredient.unit}`}
+                        </Typography>
+                      </Box>
+                      <Typography sx={{ 
+                        fontSize: '0.85rem',
+                        minWidth: '45px',
+                        textAlign: 'right',
+                        fontWeight: 900  // Match the bold weight used for percentage values in mandatory ingredients
+                      }}>
+                        {`${ingredient.dailyValue}%`}
+                      </Typography>
+                    </Box>
+                  );
+                })}
               </Box>
-            ))}
+            )}
           </Box>
 
-          {/* Custom Sections */}
-          {customSections && customSections.length > 0 && (
-            <Box sx={{ borderTop: '8px solid #000', pt: 1 }}>
-              {customSections.map((section, index) => (
-                <Box key={index} sx={{ mb: 2 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                    {section.title}
-                  </Typography>
-                  <Typography variant="body2">
-                    {section.content}
-                  </Typography>
-                  {index < customSections.length - 1 && (
-                    <Divider sx={{ my: 1 }} />
-                  )}
-                </Box>
-              ))}
-            </Box>
-          )}
-
-          {/* FDA Footnote with thick border */}
+          {/* FDA Footnote */}
           <Box sx={{ 
-            mt: 3, 
-            pt: 2, 
-            borderTop: '8px solid #000',
+            borderTop: '5px solid #000',  // Thinner border
             fontSize: '0.75rem',
-            color: '#666'
+            color: '#000'  // Changed to black
           }}>
-            <Typography variant="caption" display="block" paragraph>
+            <Typography sx={{
+              fontSize: '0.70rem',  // Decreased font size
+              fontWeight: 400,
+              textAlign: 'justify',  // Justify the text
+              fontFamily: 'Helvetica, Arial, sans-serif'  // Set font family to Helvetica
+            }}>
               * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
             </Typography>
           </Box>

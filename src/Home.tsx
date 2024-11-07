@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Modal, TextField, Button, AppBar, Toolbar, Typography, CardMedia, CardContent, Box } from '@mui/material';
+import { Card, Modal, TextField, Button, AppBar, Toolbar, Typography, Box, Dialog, DialogTitle, DialogActions, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import nutritionFactsLabel from './assets/nutritionFactsLabel.png';
-import createLabel from './assets/createLabel.jpg';
 import LoginIcon from '@mui/icons-material/Login';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface NutritionData {
   id: string;
@@ -16,11 +17,23 @@ const Home: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [savedLabels, setSavedLabels] = useState<NutritionData[]>([]);
+  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [labelToDelete, setLabelToDelete] = useState<string | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem('nutritionFactsData') || '[]');
     setSavedLabels(data);
+  }, []);
+
+  useEffect(() => {
+    // Check for user login status
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      setUser(JSON.parse(userStr));
+    }
   }, []);
 
   const handleAddClick = () => {
@@ -45,23 +58,47 @@ const Home: React.FC = () => {
           productTitle: labelData.productTitle,
           mandatorySections: labelData.mandatorySections,
           mandatoryIngredients: labelData.mandatoryIngredients,
-        additionalIngredients: labelData.additionalIngredients,
-          existingId:labelData.id
+          additionalIngredients: labelData.additionalIngredients,
+          existingId: labelData.id
         }
       });
     }
   };
 
-  const handleCardClick = (nutritionData: any) => {
-    navigate('/customize', {
-      state: {
-        productTitle: nutritionData.productTitle,
-        mandatorySections: nutritionData.mandatorySections,
-        mandatoryIngredients: nutritionData.mandatoryIngredients,
-        additionalIngredients: nutritionData.additionalIngredients,
-        existingId: nutritionData.id
-      }
-    });
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    navigate('/login');
+  };
+
+  const handleDeleteClick = (event: React.MouseEvent, labelId: string) => {
+    event.stopPropagation();
+    setLabelToDelete(labelId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (labelToDelete) {
+      const allLabels = JSON.parse(localStorage.getItem('nutritionFactsData') || '[]');
+      const updatedLabels = allLabels.filter((label: NutritionData) => label.id !== labelToDelete);
+      localStorage.setItem('nutritionFactsData', JSON.stringify(updatedLabels));
+      setSavedLabels(updatedLabels);
+    }
+    setDeleteDialogOpen(false);
+    setLabelToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setLabelToDelete(null);
+  };
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -69,10 +106,7 @@ const Home: React.FC = () => {
       <AppBar 
         position="static" 
         sx={{ 
-          backgroundColor: '#FFB74D' // This is a light orange color
-          // Alternative options:
-          // backgroundColor: '#FFCC80' // Even lighter orange
-          // backgroundColor: '#FFA726' // Slightly darker orange
+          backgroundColor: '#ADD8E6'
         }}
       >
         <Toolbar>
@@ -82,36 +116,60 @@ const Home: React.FC = () => {
             sx={{
               flexGrow: 1,
               textAlign: 'center',
-              color: 'rgba(0, 0, 0, 0.87)', // Rich black with slight transparency for elegance
-              fontWeight: 700, // Changed from 500 to 700 for bolder text
-              letterSpacing: '0.5px', // Subtle letter spacing for sophistication
-              fontSize: '1.4rem', // Slightly larger font size
-              fontFamily: '"Poppins", "Montserrat", "Roboto", sans-serif', // Updated font family
-              textTransform: 'none', // Ensures natural case
-              padding: '8px 0', // Add some vertical padding
-              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.15)' // Added subtle shadow
-              // Alternative shadow options:
-              // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' // Lighter shadow
-              // textShadow: '3px 3px 6px rgba(0, 0, 0, 0.1)' // Softer, more spread out shadow
+              color: 'rgba(0, 0, 0, 0.87)',
+              fontWeight: 700,
+              letterSpacing: '0.5px',
+              fontSize: '1.4rem',
+              fontFamily: '"Poppins", "Montserrat", "Roboto", sans-serif',
+              textTransform: 'none',
+              padding: '8px 0',
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.15)'
             }}
           >
             Nutrition Facts Label Maker
           </Typography>
           
-          <Button 
-            color="inherit" 
-            startIcon={<LoginIcon />}
-            sx={{
-              color: 'rgba(0, 0, 0, 0.87)',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.04)'
-              },
-              position: 'absolute',
-              right: 16
-            }}
-          >
-            Login
-          </Button>
+          {user ? (
+            <div>
+              <IconButton onClick={handleMenuClick} color="inherit">
+                <Avatar>{user.username.charAt(0).toUpperCase()}</Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleMenuClose}>{user.username}</MenuItem>
+                <MenuItem 
+                  onClick={handleLogout} 
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background on hover
+                      color: 'red' // Red text on hover
+                    }
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
+            </div>
+          ) : (
+            <Button 
+              color="inherit" 
+              startIcon={<LoginIcon />}
+              onClick={() => navigate('/login')}
+              sx={{
+                color: 'rgba(0, 0, 0, 0.87)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                },
+                position: 'absolute',
+                right: 16
+              }}
+            >
+              Login
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
       
@@ -121,40 +179,42 @@ const Home: React.FC = () => {
             display: 'flex',
             flexWrap: 'wrap',
             gap: '32px',
-            justifyContent: 'flex-start',
-            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '90%',
             maxWidth: '1360px',
             margin: '0 auto',
             padding: '32px',
             backgroundColor: '#f5f5f5',
-                      borderRadius: '8px',
-            minHeight:'500px'
+            borderRadius: '8px',
+            minHeight: '500px'
           }}
         >
           {/* Generate Label Card */}
           <Card 
             onClick={handleAddClick}
             sx={{
-              width: 300,
-              height: 300,
+              width: 250,
+              height: 350,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              backgroundColor: '#FFB74D',
+              backgroundColor: '#ADD8E6',
               '&:hover': { 
-                backgroundColor: '#FFA726'
+                backgroundColor: '#B0DAE9'
               }
             }}
           >
             <img 
-              src={createLabel} 
+              src={nutritionFactsLabel} 
               alt="Nutrition Facts Label"
               style={{
                 width: '100%',
-                height: '60%',
+                height: '70%',
                 objectFit: 'cover',
+                objectPosition: 'top',
                 maxWidth: '100%'
               }}
             />
@@ -185,26 +245,28 @@ const Home: React.FC = () => {
             <Card
               key={label.id}
               sx={{
-                width: 300,
-                height: 300,
+                width: 250,
+                height: 350,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 cursor: 'pointer',
-                backgroundColor: '#FFB74D',
+                backgroundColor: '#ADD8E6',
+                position: 'relative',
                 '&:hover': { 
-                  backgroundColor: '#FFA726'
+                  backgroundColor: '#B0DAE9'
                 }
               }}
               onClick={() => handleSavedLabelClick(label.id)}
             >
               <img 
-                src={createLabel}
+                src={nutritionFactsLabel}
                 alt="Nutrition Label"
                 style={{
                   width: '100%',
-                  height: '60%',
+                  height: '70%',
                   objectFit: 'cover',
+                  objectPosition: 'top',
                   maxWidth: '100%'
                 }}
               />
@@ -224,13 +286,28 @@ const Home: React.FC = () => {
               <Typography 
                 variant="body2" 
                 sx={{ 
-                  mt: 'auto', 
-                  mb: 2,
-                  color: 'rgba(0, 0, 0, 0.87)'
+                  color: 'rgba(0, 0, 0, 0.87)',
+                  textAlign: 'center',
+                  mb: 2
                 }}
               >
                 Created: {new Date(label.createdAt).toLocaleDateString()}
               </Typography>
+              <Box sx={{ 
+                position: 'absolute',
+                bottom: 8,
+                right: 8
+              }}>
+                <Button
+                  onClick={(e) => handleDeleteClick(e, label.id)}
+                  sx={{
+                    minWidth: 'auto',
+                    padding: '6px',
+                  }}
+                >
+                  <DeleteIcon sx={{ color: 'rgba(0, 0, 0, 0.87)' }} />
+                </Button>
+              </Box>
             </Card>
           ))}
         </Box>
@@ -259,11 +336,11 @@ const Home: React.FC = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '&.Mui-focused fieldset': {
-                    borderColor: '#FFB74D', // Match toolbar color when focused
+                    borderColor: '#ADD8E6',
                   },
                 },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#FFB74D', // Match toolbar color for label when focused
+                  color: '#ADD8E6',
                 },
               }}
             />
@@ -273,12 +350,12 @@ const Home: React.FC = () => {
               disabled={!title.trim()}
               sx={{ 
                 mt: 2,
-                backgroundColor: '#FFB74D',
+                backgroundColor: '#ADD8E6',
                 '&:hover': {
-                  backgroundColor: '#FFA726' // Slightly darker orange for hover
+                  backgroundColor: '#B0DAE9'
                 },
                 '&:disabled': {
-                  backgroundColor: '#FFE0B2' // Lighter orange when disabled
+                  backgroundColor: '#FFE0B2'
                 }
               }}
             >
@@ -286,6 +363,45 @@ const Home: React.FC = () => {
             </Button>
           </div>
         </Modal>
+
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={handleDeleteCancel}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pr: 1 }}>
+            <DialogTitle>Are you sure you want to delete this label?</DialogTitle>
+            <IconButton onClick={handleDeleteCancel} sx={{ color: 'red',marginTop:'-30px' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <DialogActions sx={{ justifyContent: 'center' }}>
+            <Button 
+              onClick={handleDeleteCancel} 
+              sx={{ 
+                backgroundColor: '#B0DAE9', 
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#ADD8E6'
+                }
+              }}
+            >
+              No
+            </Button>
+            <Button 
+              onClick={handleDeleteConfirm} 
+              sx={{ 
+                backgroundColor: '#B0DAE9', 
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#ADD8E6'
+                }
+              }} 
+              autoFocus
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </div>
   );

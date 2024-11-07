@@ -127,10 +127,10 @@ const AddIngredients: React.FC<AddIngredientsProps> = ({ onIngredientsChange, in
                         fullWidth
                         size="small"
                         sx={{
-                            backgroundColor: '#FFB74D',
+                            backgroundColor: '#ADD8E6',
                             color: '#000000',
                             '&:hover': {
-                                backgroundColor: '#FFA726' // slightly darker shade for hover
+                                backgroundColor: '#B0DAE9' // slightly darker shade for hover
                             }
                         }}
                     >
