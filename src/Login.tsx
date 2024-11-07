@@ -58,7 +58,7 @@ const Login: React.FC = () => {
       >
         <Card sx={{ p: 4, width: '100%', maxWidth: 400 }}>
           <Typography variant="h5" gutterBottom align="center">
-            Sign In
+            Log In
           </Typography>
           
           {error && (
@@ -120,7 +120,7 @@ const Login: React.FC = () => {
               }
             }}
           >
-            Sign In
+            Log In
           </Button>
 
           {/* <Typography variant="body2" align="center" sx={{ mt: 2 }}>
