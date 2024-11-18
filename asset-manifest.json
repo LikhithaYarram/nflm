@@ -1,20 +1,21 @@
 {
   "files": {
     "main.css": "/nflm/static/css/main.e6c13ad2.css",
-    "main.js": "/nflm/static/js/main.ae0a2da9.js",
+    "main.js": "/nflm/static/js/main.a8791991.js",
     "static/js/213.f9dd84d3.chunk.js": "/nflm/static/js/213.f9dd84d3.chunk.js",
     "static/js/732.8b1f196d.chunk.js": "/nflm/static/js/732.8b1f196d.chunk.js",
     "static/js/453.40c2a658.chunk.js": "/nflm/static/js/453.40c2a658.chunk.js",
+    "static/media/TrialHome.jpg": "/nflm/static/media/TrialHome.641304be4ec1e6d72093.jpg",
     "static/media/nutritionFactsLabel.png": "/nflm/static/media/nutritionFactsLabel.14d2e504385dc1afb510.png",
     "index.html": "/nflm/index.html",
     "main.e6c13ad2.css.map": "/nflm/static/css/main.e6c13ad2.css.map",
-    "main.ae0a2da9.js.map": "/nflm/static/js/main.ae0a2da9.js.map",
+    "main.a8791991.js.map": "/nflm/static/js/main.a8791991.js.map",
     "213.f9dd84d3.chunk.js.map": "/nflm/static/js/213.f9dd84d3.chunk.js.map",
     "732.8b1f196d.chunk.js.map": "/nflm/static/js/732.8b1f196d.chunk.js.map",
     "453.40c2a658.chunk.js.map": "/nflm/static/js/453.40c2a658.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.ae0a2da9.js"
+    "static/js/main.a8791991.js"
   ]
 }
