@@ -2,6 +2,7 @@ import { RouteObject, Navigate } from 'react-router-dom';
 import Home from '../Home';
 import NutritionFactsCustomization from '../NutritionFactsCustomization';
 import Login from '../Login';
+import RegisterPage from '../Register';
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -48,6 +49,10 @@ export const routes: RouteObject[] = [
         <NutritionFactsCustomization />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
   },
   {
     path: '*',

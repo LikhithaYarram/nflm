@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Modal, TextField, Button, AppBar, Toolbar, Typography, Box, Dialog, DialogTitle, DialogActions, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
+import { Card, Modal, TextField, Button, Box, Dialog, DialogTitle, DialogActions, IconButton, Menu, MenuItem, Avatar, Drawer, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import nutritionFactsLabel from './assets/nutritionFactsLabel.png';
 import LoginIcon from '@mui/icons-material/Login';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ArticleIcon from '@mui/icons-material/Article';
+import ContactSupportIcon from '@mui/icons-material/ContactSupport';
 
 interface NutritionData {
   id: string;
@@ -102,78 +106,91 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="home">
-      <AppBar 
-        position="static" 
-        sx={{ 
-          backgroundColor: '#ADD8E6'
+    <div className="home" style={{ display: 'flex' }}>
+      {/* Left Sidebar */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: 240,
+            boxSizing: 'border-box',
+            backgroundColor: '#ADD8E6',
+          },
         }}
       >
-        <Toolbar>
+        <Box sx={{ overflow: 'auto', height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Typography
             variant="h6"
-            component="div"
             sx={{
-              flexGrow: 1,
+              p: 2,
               textAlign: 'center',
+              fontWeight: 'bold',
               color: 'rgba(0, 0, 0, 0.87)',
-              fontWeight: 700,
-              letterSpacing: '0.5px',
-              fontSize: '1.4rem',
-              fontFamily: '"Poppins", "Montserrat", "Roboto", sans-serif',
-              textTransform: 'none',
-              padding: '8px 0',
-              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.15)'
             }}
           >
             Nutrition Facts Label Maker
           </Typography>
           
-          {user ? (
-            <div>
-              <IconButton onClick={handleMenuClick} color="inherit">
-                <Avatar>{user.username.charAt(0).toUpperCase()}</Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem onClick={handleMenuClose}>{user.username}</MenuItem>
-                <MenuItem 
-                  onClick={handleLogout} 
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background on hover
-                      color: 'red' // Red text on hover
-                    }
-                  }}
-                >
-                  Logout
-                </MenuItem>
-              </Menu>
-            </div>
-          ) : (
-            <Button 
-              color="inherit" 
-              startIcon={<LoginIcon />}
-              onClick={() => navigate('/login')}
-              sx={{
-                color: 'rgba(0, 0, 0, 0.87)',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                },
-                position: 'absolute',
-                right: 16
-              }}
-            >
-              Login
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-      
-      <div className="content" style={{ padding: '32px' }}>
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Properties" />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon>
+                <ArticleIcon />
+              </ListItemIcon>
+              <ListItemText primary="Documents" />
+            </ListItem>
+          </List>
+
+          <Box sx={{ flexGrow: 1 }} />
+          
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <ContactSupportIcon />
+              </ListItemIcon>
+              <ListItemText primary="Contact Us" />
+            </ListItem>
+            {user ? (
+              <ListItem onClick={handleMenuClick} sx={{ cursor: 'pointer' }}>
+                <Avatar sx={{ bgcolor: '#B0DAE9', color: 'black' }}>
+                  {user.username[0].toUpperCase()}
+                </Avatar>
+                <ListItemText primary={user.username} sx={{ ml: 2 }} />
+              </ListItem>
+            ) : (
+              <ListItem onClick={() => navigate('/login')} sx={{ cursor: 'pointer' }}>
+                <ListItemIcon>
+                  <LoginIcon />
+                </ListItemIcon>
+                <ListItemText primary="Login" />
+              </ListItem>
+            )}
+          </List>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
+        </Box>
+      </Drawer>
+
+      {/* Main Content */}
+      <div className="content" style={{ padding: '32px', flexGrow: 1 }}>
         <Box 
           sx={{ 
             display: 'flex',
