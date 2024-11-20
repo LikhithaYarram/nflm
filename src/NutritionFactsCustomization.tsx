@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Typography, Box, Divider, Button, AppBar, Toolbar, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, Typography, Box, Divider, Button, IconButton, TextField, Grid, FormControl } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MandatorySections from './MandatorySections';
@@ -8,6 +8,7 @@ import AddIngredients from './AddIngredients';
 import CustomSections from './CustomSections';
 import LivePreview from './LivePreview';
 import { v4 as uuidv4 } from 'uuid';
+import Navbar from './Navbar';
 
 interface MandatorySectionsData {
   servingsPerContainer: string;
@@ -51,12 +52,10 @@ const defaultMandatoryIngredients: MandatoryIngredient[] = [
 const NutritionFactsCustomization: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [user, setUser] = useState<{ username: string } | null>(null);
 
   // Update the location.state type to include all necessary data
   const { 
-    productTitle, 
+    productTitle: initialProductTitle, 
     mandatorySections, 
     mandatoryIngredients: existingMandatoryIngredients,
     additionalIngredients: existingAdditionalIngredients,
@@ -68,6 +67,8 @@ const NutritionFactsCustomization: React.FC = () => {
     additionalIngredients?: AdditionalIngredient[];
     existingId?: string;
   };
+
+  const [productTitle, setProductTitle] = useState(initialProductTitle);
 
   // Initialize state with existing data if available
   const [mandatorySectionsData, setMandatorySectionsData] = useState<MandatorySectionsData>(
@@ -85,29 +86,6 @@ const NutritionFactsCustomization: React.FC = () => {
   const [additionalIngredients, setAdditionalIngredients] = useState<AdditionalIngredient[]>(
     existingAdditionalIngredients || []
   );
-
-  useEffect(() => {
-    // Check for user login status
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      setUser(JSON.parse(userStr));
-    }
-  }, []);
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    handleMenuClose();
-    navigate('/signin');
-  };
 
   const handleSave = () => {
     const nutritionData = {
@@ -137,54 +115,49 @@ const NutritionFactsCustomization: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-      <AppBar position="static" sx={{ backgroundColor: '#ADD8E6' }} elevation={1}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            sx={{ color: 'black' }}
-            onClick={() => navigate('/')}
-            aria-label="back"
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ ml: 2, color: 'black', flexGrow: 1 }}>
-            Nutrition Facts Label Maker
-          </Typography>
-          {user && (
-            <div>
-              <IconButton onClick={handleMenuOpen} color="inherit">
-                <Avatar>{user.username.charAt(0).toUpperCase()}</Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-              >
-                <MenuItem onClick={handleMenuClose}>{user.username}</MenuItem>
-                <MenuItem 
-                  onClick={handleLogout} 
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background on hover
-                      color: 'red' // Red text on hover
-                    }
-                  }}
-                >
-                  Logout
-                </MenuItem>
-              </Menu>
-            </div>
-          )}
-        </Toolbar>
-      </AppBar>
+      <Navbar />
+      <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
+        <IconButton
+          edge="start"
+          sx={{ color: 'black', marginRight: 2 }}
+          onClick={() => navigate('/')}
+          aria-label="back"
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h6" sx={{ color: 'black' }}>
+          Back to Home
+        </Typography>
+      </Box>
       
       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-        <Card sx={{ width: '48%', marginTop: 4, marginLeft: 4, paddingRight: '20px', marginRight: 4 }}>
+        <Card sx={{ 
+          width: '48%', 
+          marginTop: 4, 
+          marginLeft: 4, 
+          paddingRight: '20px', 
+          marginRight: 4,
+          maxHeight: 'calc(100vh - 120px)', // Increased from -150px
+          overflow: 'auto'
+        }}>
           <CardContent>
-            <Typography variant="h5" component="div" gutterBottom>
-              {productTitle}
-            </Typography>
+            <Box sx={{ paddingTop: '20px' }}>
+              <Grid container spacing={2} style={{ marginLeft: '0', marginRight: 'auto' }}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth size="small">
+                    <Typography variant="body2" component="label" noWrap>
+                      Product Title
+                    </Typography>
+                    <TextField
+                      size="small"
+                      value={productTitle}
+                      onChange={(e) => setProductTitle(e.target.value)}
+                      variant="outlined"
+                    />
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Box>
             <MandatorySections 
               onDataChange={setMandatorySectionsData}
               initialData={mandatorySectionsData}
@@ -205,7 +178,13 @@ const NutritionFactsCustomization: React.FC = () => {
             <CustomSections />
           </CardContent>
         </Card>
-        <Card sx={{ width: '48%', marginTop: 4, marginRight: 4 }}>
+        <Card sx={{ 
+          width: '48%', 
+          marginTop: 4, 
+          marginRight: 4,
+          maxHeight: 'calc(100vh - 120px)', // Increased from -150px
+          overflow: 'auto'
+        }}>
           <CardContent>
             <Typography variant="h5" component="div" gutterBottom>
               Live Preview

@@ -50,8 +50,8 @@ const MandatoryIngredients: React.FC<MandatoryIngredientsProps> = ({ onIngredien
   return (
     <Grid container spacing={2} style={{ marginLeft: '0', marginRight: 'auto' }}>
       {ingredients.map((ingredient, index) => (
-        <Grid item xs={12} sm={6} key={index}>
-          <Grid container spacing={1}>
+        <Grid item xs={12} key={index}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant="body2" component="label">
                 {ingredient.name}
